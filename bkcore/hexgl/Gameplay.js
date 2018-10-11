@@ -1,7 +1,7 @@
  /*
  * HexGL
  * @author Thibaut 'BKcore' Despoulain <http://bkcore.com>
- * @license This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 Unported License. 
+ * @license This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 Unported License.
  *          To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/.
  */
 
@@ -53,6 +53,7 @@ bkcore.hexgl.Gameplay = function(opts)
 
 	this.raceData = null;
 
+
 	this.modes.timeattack = function()
 	{
 		self.raceData.tick(this.timer.time.elapsed);
@@ -89,6 +90,7 @@ bkcore.hexgl.Gameplay = function(opts)
 		if(self.shipControls.destroyed == true)
 		{
 			self.end(self.results.DESTROYED);
+			// bkcore.AudioTone.gameOver();
 		}
 	};
 
@@ -173,6 +175,7 @@ bkcore.hexgl.Gameplay.prototype.end = function(result)
 	{
 		if(this.hud != null) this.hud.display("Destroyed");
 		this.step = 100;
+		bkcore.AudioTone.gameOver();
 	}
 }
 
@@ -181,28 +184,32 @@ bkcore.hexgl.Gameplay.prototype.update = function()
 	if(!this.active) return;
 
 	this.timer.update();
-	
+
 	if(this.step == 0 && this.timer.time.elapsed >= this.countDownDelay+this.startDelay)
 	{
 		if(this.hud != null) this.hud.display("3");
 		this.step = 1;
+	  bkcore.AudioTone.countdown.play('C1');
 	}
 	else if(this.step == 1 && this.timer.time.elapsed >= 2*this.countDownDelay+this.startDelay)
 	{
 		if(this.hud != null) this.hud.display("2");
 		this.step = 2;
+	  bkcore.AudioTone.countdown.play('C1');
 	}
 	else if(this.step == 2 && this.timer.time.elapsed >= 3*this.countDownDelay+this.startDelay)
 	{
 		if(this.hud != null) this.hud.display("1");
 		this.step = 3;
+	  bkcore.AudioTone.countdown.play('C1');
 	}
 	else if(this.step == 3 && this.timer.time.elapsed >= 4*this.countDownDelay+this.startDelay)
 	{
 		if(this.hud != null) this.hud.display("Go", 0.5);
 		this.step = 4;
 		this.timer.start();
-		
+	  bkcore.AudioTone.countdown.play('C2');
+
 		if(this.mode != "replay")
 			this.shipControls.active = true;
 	}

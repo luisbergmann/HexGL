@@ -1,7 +1,7 @@
  /*
  * HexGL
  * @author Thibaut 'BKcore' Despoulain <http://bkcore.com>
- * @license This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 Unported License. 
+ * @license This work is licensed under the Creative Commons Attribution-NonCommercial 3.0 Unported License.
  *          To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/.
  */
 
@@ -149,7 +149,7 @@ bkcore.hexgl.HUD.prototype.update = function(speed, speedRatio, shield, shieldRa
 	var sho = SCREEN_WIDTH/this.shieldBarHRatio;
 	var sh = sho*shieldRatio;
 	var sy = (SCREEN_WIDTH/this.shieldBarYRatio)+sho-sh;
-	
+
 
 	if(this.step == 0)
 	{
@@ -262,7 +262,7 @@ bkcore.hexgl.HUD.prototype.update = function(speed, speedRatio, shield, shieldRa
 		    this.ctx.fillText(this.message, SCREEN_HW, my);
 		}
 	}
-	
+
 	this.messageTiming++;
 
 	this.step++;

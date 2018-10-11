@@ -252,7 +252,9 @@ bkcore.hexgl.ShipControls = function(ctx)
 	{
 		switch(event.keyCode)
 		{
-			case 38: /*up*/	self.key.forward = true; break;
+			case 38: /*up*/	self.key.forward = true;
+			 								bkcore.AudioTone.startForward();
+											break;
 
 			case 40: /*down*/self.key.backward = true; break;
 
@@ -261,9 +263,13 @@ bkcore.hexgl.ShipControls = function(ctx)
 			case 39: /*right*/self.key.right = true; break;
 
 			case 81: /*Q*/self.key.ltrigger = true; break;
-			case 65: /*A*/self.key.ltrigger = true; break;
+			case 65: /*A*/self.key.ltrigger = true;
+			 							bkcore.AudioTone.airBreakOn();
+										break;
 
-			case 68: /*D*/self.key.rtrigger = true; break;
+			case 68: /*D*/self.key.rtrigger = true;
+			 							bkcore.AudioTone.airBreakOn();
+										break;
 			case 69: /*E*/self.key.rtrigger = true; break;
 		}
 	};
@@ -272,7 +278,9 @@ bkcore.hexgl.ShipControls = function(ctx)
 	{
 		switch(event.keyCode)
 		{
-			case 38: /*up*/	self.key.forward = false; break;
+			case 38: /*up*/	self.key.forward = false;
+											bkcore.AudioTone.stopForward();
+											break;
 
 			case 40: /*down*/self.key.backward = false; break;
 
@@ -281,9 +289,13 @@ bkcore.hexgl.ShipControls = function(ctx)
 			case 39: /*right*/self.key.right = false; break;
 
 			case 81: /*Q*/self.key.ltrigger = false; break;
-			case 65: /*A*/self.key.ltrigger = false; break;
+			case 65: /*A*/self.key.ltrigger = false;
+			 							bkcore.AudioTone.airBreakOff();
+										break;
 
-			case 68: /*D*/self.key.rtrigger = false; break;
+			case 68: /*D*/self.key.rtrigger = false;
+			 							bkcore.AudioTone.airBreakOff();
+										break;
 			case 69: /*E*/self.key.rtrigger = false; break;
 		}
 	};
@@ -338,9 +350,9 @@ bkcore.hexgl.ShipControls.prototype.terminate = function()
 
 bkcore.hexgl.ShipControls.prototype.destroy = function()
 {
-	bkcore.Audio.play('destroyed');
-	bkcore.Audio.stop('bg');
-	bkcore.Audio.stop('wind');
+	// bkcore.Audio.play('destroyed');
+	// bkcore.Audio.stop('bg');
+	// bkcore.Audio.stop('wind');
 
 	this.active = false;
 	this.destroyed = true;
@@ -422,10 +434,14 @@ bkcore.hexgl.ShipControls.prototype.update = function(dt)
 			}
 		}
 
-		if(this.key.forward)
+		if(this.key.forward){
 			this.speed += this.thrust * dt;
-		else
+			bkcore.AudioTone.speedUp(this.speed);
+		}
+		else {
 			this.speed -= this.airResist * dt;
+			bkcore.AudioTone.speedDown(this.speed);
+		}
 		if(this.key.ltrigger)
 		{
 			if(this.key.left)
@@ -458,6 +474,9 @@ bkcore.hexgl.ShipControls.prototype.update = function(dt)
 	this.rotation.y = this.angular;
 
 	this.speed = Math.max(0.0, Math.min(this.speed, this.maxSpeed));
+
+	bkcore.AudioTone.setListenerSpeed(this.speed); //Tone.js
+
 	this.speedRatio = this.speed / this.maxSpeed;
 	this.movement.z += this.speed * dt;
 
@@ -538,8 +557,12 @@ bkcore.hexgl.ShipControls.prototype.update = function(dt)
 	}
 
 	//Update listener position
-	bkcore.Audio.setListenerPos(this.movement);
-	bkcore.Audio.setListenerVelocity(this.currentVelocity);
+	// bkcore.Audio.setListenerPos(this.movement);
+	// bkcore.Audio.setListenerVelocity(this.currentVelocity);
+
+	//Update listener position
+	// bkcore.Audio.setListenerPos(this.movement);
+	// bkcore.AudioTone.setListenerVelocity(this.currentVelocity);
 };
 
 bkcore.hexgl.ShipControls.prototype.teleport = function(pos, quat)
@@ -589,7 +612,9 @@ bkcore.hexgl.ShipControls.prototype.boosterCheck = function(dt)
 	this.boost -= this.boosterDecay * dt;
 	if(this.boost < 0){
 		this.boost = 0.0;
-		bkcore.Audio.stop('boost');
+		// bkcore.Audio.stop('boost');
+		bkcore.AudioTone.boostOff();
+
 	}
 
 	var x = Math.round(this.collisionMap.pixels.width/2 + this.dummy.position.x * this.collisionPixelRatio);
@@ -599,7 +624,8 @@ bkcore.hexgl.ShipControls.prototype.boosterCheck = function(dt)
 	var color = this.collisionMap.getPixel(x, z);
 
 	if(color.r == 255 && color.g < 127 && color.b < 127) {
-		bkcore.Audio.play('boost');
+		// bkcore.Audio.play('boost');
+		bkcore.AudioTone.boostOn();
 		this.boost = this.boosterSpeed;
 	}
 
@@ -628,7 +654,10 @@ bkcore.hexgl.ShipControls.prototype.collisionCheck = function(dt)
 
 	if(collision.r < 255)
 	{
-		bkcore.Audio.play('crash');
+		// bkcore.Audio.play('crash');
+		bkcore.AudioTone.crash();
+		if (this.shield < 0.22) bkcore.AudioTone.playAlarm(); // play Alarm loop
+		if (this.shield < 0.1) bkcore.AudioTone.alarmLooper.loopEnd = '1m';; // play Alarm loop
 
 		// Shield
 		var sr = (this.getRealSpeed() / this.maxSpeed);
@@ -679,6 +708,8 @@ bkcore.hexgl.ShipControls.prototype.collisionCheck = function(dt)
 			{
 				console.log('GAMEOVER');
 				this.fall();
+
+				bkcore.AudioTone.gameOver();
 			}
 		}
 
